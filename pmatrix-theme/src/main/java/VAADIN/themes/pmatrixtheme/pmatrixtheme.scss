@@ -1,0 +1,26 @@
+/* Import the reindeer theme. */
+/* This only allows us to use the mixins defined in it and does not add any styles by itself. */
+@import "../reindeer/reindeer.scss";
+
+/* This contains all of your theme. */
+/* If somebody wants to extend the theme she will include this mixin. */
+@mixin pmatrixtheme {
+  /* Include all the styles from the reindeer theme */
+  @include reindeer;
+
+  /* Insert your theme rules here */
+  
+  /* Set of style modifications for pmatrix */
+
+.v-table-caption-container {
+    text-transform: none;
+    font-size: 12px;
+}
+
+/* CGALLEN added */
+.v-link-red {
+	white-space: nowrap;
+	color: red;
+}
+
+}

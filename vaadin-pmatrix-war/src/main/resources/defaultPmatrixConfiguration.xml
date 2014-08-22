@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!-- ***************************************** -->
+<!-- Example Pmatrix Configuration             -->
+<!--                                           -->
+<!-- This file is a default example            --> 
+<!-- configuration for the pmatrix application -->
+<!-- ***************************************** -->
+
+<PmatrixConfigurations xmlns="http://xmlns.opennms.org/xsd/config/pmatrix" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://xmlns.opennms.org/xsd/config/pmatrix pmatrixConfig.xsd">
+
+    <!-- refreshRate defines in milliseconds how often all client displays are refreshed -->
+    <refreshRate>10000</refreshRate>
+    
+    <!-- pmatrixDpdCalculatorClassName defines which calculator implementation is used for all the pmatrix displays -->
+    <!-- It should be set to the fully qualified class name of the implementation class                             -->
+    <dataPointCalculator xsi:type="PmatrixDpdCalculatorConfig" pmatrixDpdCalculatorClassName="org.opennms.features.vaadin.pmatrix.calculator.PmatrixDpdCalculatorSimpleMovingAvgImpl">
+        <configuration>
+        
+            <!-- If data samples are not updated within a timeout, the sample will be displayed as UNDEFINED (blue) -->
+            <!-- The sampleTimeout property sets the timeout for calculators in milliseconds                        -->
+            <!-- The default if sampleTimeout not set is 2.5 * 15 minute samples. (2.5*15*60*1000 = 2250000)        -->
+            <!-- (All calculator timeouts are checked every time there is an update sample but if no data is        -->
+            <!--  being received at all, a heartbeat checks all calculators every 5 minutes)                        -->
+            <!-- The property here is set to missing 2.5 * 5 minute samples (i.e 12.5 minutes mins late)            -->
+            <property name="sampleTimeout" value="750000"/>
+
+            <!-- Allowed configuration properties will vary depending upon the calculator implementation -->
+            <!-- The following are configuration values for PmatrixDpdCalculatorSimpleMovingAvgImpl      -->
+            <!-- property maxSampleNo defines maximum number of samples stored for calculations          -->
+            <property name="maxSampleNo" value="1000"/>
+            
+            <!-- property secondValue defines what value is displayed as bottom value of each cell       -->
+            <!-- can have values averageValue,highestValue,lowestValue, noValue (lower no not displayed) -->
+            <property name="secondValue" value="highestValue"/>
+            
+            <!-- The thresholdType determines if the alarm threshold is based on standard deviation, average or          -->
+            <!-- absolute values. The thresholdType can have values average, standardDeviation and absolute              -->
+            <!--    if average, the threshold is a multiple of the average value calculated over the sample interval.    -->
+            <!--    if standardDeviation, the threshold is a multiple of the standardDeviation over the sample interval. -->
+            <!--    if absolute, the threshold is set to the absolute value of the threshold multiplier.                 -->
+            <property name="thresholdType" value="average"/>
+            
+            <!-- The threshold multipliers determine how much the thresholdType value is multiplied to determine          -->
+            <!-- a threshold for minor,major,warning and critical thresholds. This sets the color of the cell.            --> 
+            <!-- For example, if the thresholdType=average, then majorThreshold = majorThresholdMultiplier*averageValue   -->
+            <!--              if the thresholdType=absolute,then majorThreshold = majorThresholdMultiplier                -->
+            <!-- each threshold number value is parsed into a Double. The following multipliers can be set;               -->
+            <!-- criticalThresholdMultiplier,warningThresholdMultiplier,minorThresholdMultiplier,majorThresholdMultiplier -->
+            <property name="warningThresholdMultiplier"  value="0.025"/> <!-- 2.5% deviation from average -->
+            <property name="minorThresholdMultiplier"    value="0.05"/>  <!-- 5% deviation from average   -->
+            <property name="majorThresholdMultiplier"    value="0.1"/>   <!-- 10% deviation from average  -->
+            <property name="criticalThresholdMultiplier" value="0.5"/>   <!-- 50% deviation from average  -->
+
+        </configuration>
+    </dataPointCalculator>
+    
+    <!-- the pmatrixSpecifications element may contain multiple pmatrixSpecification definitions -->
+    <pmatrixSpecifications>
+        <pmatrixSpecification xsi:type="PmatrixSpecification">
+        
+            <!-- Each Pmatrix Table must have a unique pmatrixName. This is the key used in URL's to render the table     -->
+            <!-- Tables are rendered according the name supplied in the uiComponent parameter. For example:               -->
+            <!--   .../vaadin-pmatrix/?uiComponent=default displays the JSP index page with the default table rendered    -->
+            <!--                                   in an Iframe.                                                          -->
+            <!--   .../vaadin-pmatrix/PmatrixUI?uiComponent=default" displays only the default table component            -->
+            <!-- The 'default' table is rendered if a uiComponent is not specified in a URL request                       -->
+            <!-- An error message is displayed in an unknown pmatrixTitle is used in an a URL request                     -->
+            <!-- Y must define at least one table named 'default' but additional tables can have any name                 -->
+            <pmatrixName>default</pmatrixName>
+            
+            <!-- User Defined Text for the title of the table -->
+            <pmatrixTitle>OpenNMS Pmatrix Table of very important values</pmatrixTitle>
+            
+            <!-- componentHeight and componentWidth set the recommended component width and height values for the Table  -->
+            <!-- using CSS notation as per Vaadin Table spec. If not defined default values are used.                    -->
+            <componentWidth>2000px</componentWidth>
+            <componentHeight>900px</componentHeight>
+            
+            <!-- if hidePmatrixHeaders is true, no row or column headers are displayed                                   -->
+            <hidePmatrixHeaders>false</hidePmatrixHeaders>
+            
+            <!-- Switches to turn on decorations and secondary values for all cells in this specific table definition.                       -->
+            <!--   (if these properties are not present the default values are true i.e; the decorations are on)                             -->
+            <!--   If latestDataValueEnabled is true the latestDataValue (upper number) is displayed for cells in this pmatrix table         -->
+            <!--   If secondaryNumberEnabled is true calculated secondaryNumber (lower number) is displayed for cells in this pmatrix table  -->
+            <!--   If rightArrowEnabled is true calculated right arrow is displayed for cells in this pmatrix table                          -->
+            <!--   If leftArrowEnabled  is true calculated left arrow is displayed for cells in this pmatrix table                           -->
+            <!--   If linkUrlEnabled is true the displayed cell link to the linkUrls in the data point definitions                           -->
+            <!--   If mouseOverTextEnabled is true the mouseOverText is displayed for the cells in this pmatrix table                        -->
+            <latestDataValueEnabled>true</latestDataValueEnabled>
+            <secondaryNumberEnabled>true</secondaryNumberEnabled>
+            <rightArrowEnabled>true</rightArrowEnabled>
+            <leftArrowEnabled>true</leftArrowEnabled>
+            <linkUrlEnabled>true</linkUrlEnabled>
+            <mouseOverTextEnabled>true</mouseOverTextEnabled>
+ 
+            <!-- These text descriptions show up in the key to the pmatrix. -->
+            <!-- If descriptiveText is not defined, no key is generated regardless of other values -->
+            <descriptiveText>This is a test table illustrating the capabilities of the OpenNMS pmatrix feature</descriptiveText>
+            <latestDataValueDescription>Top Number = the latest data value received</latestDataValueDescription>
+            <secondaryNumberDescription>Bottom Number= the highest number received over timespan</secondaryNumberDescription>
+            <leftRangeArrowDescription>Left Arrow indicates change between latest and previous data value. </leftRangeArrowDescription>
+            <rightRangeArrowDescription>Right Arrow indicates change in highest number over sample range (up,down or unchanged).</rightRangeArrowDescription>
+
+            <!-- If colorDescriptionStr is NOT SET, then a color description is generated automatically by pmatrix.                      -->
+            <!-- It should be an empty string i.e. <colorDescriptionStr></colorDescriptionStr> if you do not want a colorDescription     -->
+            <!-- If you want to define your own colorDescription then the user is entirely responsible for populating this string        -->
+            <!-- with either simple text or a properly formatted html 5 element which will fit within a table cell &lt;TD&gt;&lt;/TD&gt; -->
+            <!-- Because you are defining this within an XML file, you must use ascii escape codes: &amp; = '&' &gt; = '>' &lt; ='<' etc.-->
+            <!-- (Note you can find an example colorDescriptionStr in the second table definition (pmatrix2) below)                      -->
+            <!-- In this table definition, no colorDescriptionStr is defined and so the color key will be automatically generated.       -->
+            <!-- <colorDescriptionStr></colorDescriptionStr>  -->
+            
+            <!-- rowNames (mandatory)                                                                                        -->
+            <!-- rowNames define the labels given to the rows of the table. Each row must be uniquely named in a given table -->
+            <rowNames>
+                <row>row a</row>
+                <row>row b</row>
+                <row>row c</row>
+                <row>row d</row>
+                <row>row e</row>
+                <row>row f</row>
+                <row>row g</row>
+                <row>row h</row>
+                <row>row i</row>
+                <row>row j</row>
+                <row>row k</row>
+                <row>row l</row>
+                <row>row m</row>
+                <row>row n</row>
+            </rowNames>
+            
+            <!-- columnNames (mandatory)                                                                                  -->
+            <!-- define the labels given to the columns of the table. Each column must be uniquely named in a given table -->
+            <columnNames>
+                <column>col a</column>
+                <column>col b</column>
+                <column>col c</column>
+                <column>col d</column>
+                <column>col e</column>
+                <column>col f</column>
+                <column>col g</column>
+                <column>col h</column>
+                <column>col i</column>
+                <column>col j</column>
+                <column>col k</column>
+                <column>col l</column>
+                <column>col m</column>
+                <column>col n</column>
+            </columnNames>
+            
+            <!-- The datapointDefinitions define the cells in a table                                   -->
+            <!--                                                                                        -->
+            <!-- staticTextCell                                                                         -->
+            <!--    Used to create a label cell with a link defined in graphURL.                        -->
+            <!--    If true then the cell is filled with the static text in staticTextCellString        -->
+            <!--    the filepath is ignored and no values are calculated for this cell                  -->
+            <!--    If false or omitted, the cell is calculated and populated normally                  -->        
+            <!--                                                                                        -->            
+            <!-- staticTextCellString                                                                   -->
+            <!--    Label used in cell if staticTextCell is true                                        -->
+            <!--                                                                                        -->
+            <!-- rowName, colName (mandatory)                                                           -->
+            <!--    Each datapointDefinition must have a unique rowName and colName                     -->
+            <!--    taken from the rowNames and columnNames defined for the table                       -->
+            <!--                                                                                        -->
+            <!-- filePath (mandatory if not a static text cell)                                         -->
+            <!--   The filePath is the unique identifier for the data as contained in                   -->
+            <!--   the protocol buffer for each performance message.                                    -->
+            <!--   Note that the same filePath data may be defined in more than one table               -->
+            <!--   but only once in each table                                                          -->
+            <!--                                                                                        -->
+            <!-- graphURL (not mandatory)                                                               -->
+            <!--   The graphURL provides a URL which is used to link each cell to its related OpenNMS   -->
+            <!--   Note that the graphURL contains a rest call. Special characters must be encoded      -->
+            <!--   in this XML definition using ascii escape codes: &amp; = '&' &gt; = '>' &lt; ='<'    -->            
+            <!--                                                                                        -->
+            <!-- Initial Values (not mandatory)                                                         -->
+            <!--   Initial values can be given to the other fields in a data point definition.          -->
+            <!--   These are not normally needed but are useful for debugging or demonstration purposes -->
+            <!--   Initial values can be given to latestDataValue,latestDataValueRange,secondaryValue,  -->
+            <!--   secondaryValueRange, leftTrendArrow, rightTrendArrow and mouseOverText               -->
+            <!--                                                                                        -->           
+
+            <datapointDefinitions>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/204.79.197.200/icmp.jrb</filePath>
+                    <rowName>row a</rowName>
+                    <colName>col b</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[3].responseTime[204.79.197.200]&amp;reports=icmp</graphURL>
+
+                    <!-- initial value examples -->
+                    <latestDataValue>2001.1</latestDataValue>
+                    <latestDataValueRange>6</latestDataValueRange>
+                    <secondaryValue>20.0</secondaryValue>
+                    <secondaryValueRange>1</secondaryValueRange>
+                    <leftTrendArrow>trendUp</leftTrendArrow>
+                    <rightTrendArrow>trendDown</rightTrendArrow>
+                    <mouseOverText>Value Statistics:&lt;BR&gt; mean: 504 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +500.1</mouseOverText>
+                </datapointDefinition>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.194.41.177/icmp.jrb</filePath>
+                    <rowName>row a</rowName>
+                    <colName>col c</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[173.194.41.177]&amp;reports=icmp</graphURL>
+                    <!-- initial value examples -->
+                    <latestDataValue>701.0</latestDataValue>
+                    <latestDataValueRange>6</latestDataValueRange>
+                    <secondaryValue>20.0</secondaryValue>
+                    <secondaryValueRange>1</secondaryValueRange>
+                    <leftTrendArrow>trendUp</leftTrendArrow>
+                    <rightTrendArrow>trendDown</rightTrendArrow>
+                    <mouseOverText>Value Statistics:&lt;BR&gt; mean: 503 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +100</mouseOverText>
+                </datapointDefinition>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.252.110.27/icmp.jrb</filePath>
+                    <rowName>row b</rowName>
+                    <colName>col a</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[1].responseTime[173.252.110.27]&amp;reports=icmp</graphURL>
+                </datapointDefinition>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/8.8.4.4/icmp.jrb</filePath>
+                    <rowName>row b</rowName>
+                    <colName>col c</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[8.8.4.4]&amp;reports=icmp</graphURL>
+                </datapointDefinition>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/204.79.197.200/http.jrb</filePath>
+                    <rowName>row c</rowName>
+                    <colName>col a</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[3].responseTime[204.79.197.200]&amp;reports=http</graphURL>
+                </datapointDefinition>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/192.168.153.131/http.jrb</filePath>
+                    <rowName>row c</rowName>
+                    <colName>col b</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[4].responseTime[192.168.153.131]&amp;reports=http</graphURL>
+                </datapointDefinition>
+                
+                <!-- text only data point definition -->
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <staticTextCell>true</staticTextCell>
+                    <staticTextCellString>STATIC TEXT CELL</staticTextCellString>
+                    <filePath>doesn't matter</filePath>
+                    <rowName>row c</rowName>
+                    <colName>col d</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[4].responseTime[192.168.153.131]&amp;reports=http</graphURL>
+                    <mouseOverText>This is a static Text Cell. Click on this cell to go to graphURL</mouseOverText>
+                </datapointDefinition>
+            </datapointDefinitions>
+        </pmatrixSpecification>
+
+
+        <pmatrixSpecification xsi:type="PmatrixSpecification">
+            <pmatrixName>pmatrix2</pmatrixName>
+            <pmatrixTitle>Pmatrix Specification Two</pmatrixTitle>
+            
+            <!-- in this example the cell decorations are all turned off,  -->
+            <!-- no secondary number is displayed and no key is displayed. -->
+            <latestDataValueEnabled>true</latestDataValueEnabled>
+            <secondaryNumberEnabled>false</secondaryNumberEnabled>
+            <rightArrowEnabled>false</rightArrowEnabled>
+            <leftArrowEnabled>false</leftArrowEnabled>
+            <linkUrlEnabled>false</linkUrlEnabled>
+            <mouseOverTextEnabled>false</mouseOverTextEnabled>
+            
+            <!-- hide the headers in this example table -->
+            <!-- if hidePmatrixHeaders is true, no row or column headers are displayed -->
+            <hidePmatrixHeaders>true</hidePmatrixHeaders>
+            
+            
+            <!-- The following colorDescriptionStr will generate a similar color key to that generated automatically       -->
+            <!-- Modify the text in the comment lines such as 'put critical description here' to give a well formatted key -->
+            <colorDescriptionStr>
+&lt;tbody&gt;
+  &lt;tr&gt;
+    &lt;td colspan="2"&gt;Number Color indicates the following Severities:&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="padding-bottom: 0.01em;padding-top: 0.01em;"&gt;
+    &lt;td style="color:purple;"&gt;Critical&lt;/td&gt;
+    &lt;td&gt;put critical description here&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="padding-bottom: 0.01em;padding-top: 0.01em;"&gt;
+    &lt;td style="color:red;"&gt;Major&lt;/td&gt;
+    &lt;td&gt;put major description here&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="padding-bottom: 0.01em;padding-top: 0.01em;"&gt;
+    &lt;td style="color:LightSalmon;"&gt;Minor&lt;/td&gt;
+    &lt;td&gt;put minor description here&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="padding-bottom: 0.01em;padding-top: 0.01em;"&gt;
+    &lt;td style="color:goldenRod;"&gt;Warning&lt;/td&gt;
+    &lt;td&gt;put warning description here&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="padding-bottom: 0.01em;padding-top: 0.01em;"&gt;
+    &lt;td style="color:green;"&gt;Normal&lt;/td&gt;
+    &lt;td&gt;put normal description here&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="padding-bottom: 0.01em;padding-top: 0.01em;"&gt;
+    &lt;td style="color:blue;"&gt;Indeterminate&lt;/td&gt;
+    &lt;td&gt;(Refresh is overdue)&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+            </colorDescriptionStr>
+
+            <rowNames>
+                <row>row 1</row>
+                <row>row 2</row>
+                <row>row 3</row>
+            </rowNames>
+            <columnNames>
+                <column>col 1</column>
+                <column>col 2</column>
+                <column>col 3</column>
+            </columnNames>
+            <datapointDefinitions>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.194.41.177/http.jrb</filePath>
+                    <rowName>row 1</rowName>
+                    <colName>col 1</colName>
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[173.194.41.177]&amp;reports=http</graphURL>
+                    <!-- initial value examples -->
+                    <latestDataValue>1500.1</latestDataValue>
+                    <latestDataValueRange>6</latestDataValueRange>
+                    <secondaryValue>20.0</secondaryValue>
+                    <secondaryValueRange>1</secondaryValueRange>
+                    <leftTrendArrow>trendUp</leftTrendArrow>
+                    <rightTrendArrow>trendDown</rightTrendArrow>
+                    <mouseOverText>Value Statistics:&lt;BR&gt; mean: 502 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +500.1</mouseOverText>
+                </datapointDefinition>
+                <datapointDefinition xsi:type="DataPointDefinition">
+                    <filePath>/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.194.41.177/icmp.jrb</filePath>
+                    <rowName>row 1</rowName>
+                    <colName>col 2</colName>
+                    <!-- initial value examples -->
+                    <graphURL>http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[173.194.41.177]&amp;reports=icmp</graphURL>
+                    <latestDataValue>650.0</latestDataValue>
+                    <latestDataValueRange>6</latestDataValueRange>
+                    <secondaryValue>20.0</secondaryValue>
+                    <secondaryValueRange>1</secondaryValueRange>
+                    <leftTrendArrow>trendUp</leftTrendArrow>
+                    <rightTrendArrow>trendDown</rightTrendArrow>
+                    <mouseOverText>Value Statistics:&lt;BR&gt; mean: 501 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +100</mouseOverText>
+                </datapointDefinition>
+            </datapointDefinitions>
+        </pmatrixSpecification>
+    </pmatrixSpecifications>
+</PmatrixConfigurations>

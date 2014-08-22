@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.opennms</groupId>
+    <artifactId>opennms-pmatrix</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>vaadin-pmatrix</artifactId>
+  <packaging>bundle</packaging>
+  <name>${bundle.symbolicName}</name>
+  <description>OSGi bundle of Pmatrix Real time performance statistics matrix display for OpenNMS.</description>
+
+  <properties>
+    <bundle.symbolicName>org.opennms.features.vaadin-dashlets.dashlet-pmatrix</bundle.symbolicName>
+    <bundle.namespace>org.opennms.features.vaadin.pmatrix</bundle.namespace>
+  </properties>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <!-- | the following instructions build a simple set of public/private classes into an OSGi bundle -->
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.3.7</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+            <Bundle-Version>${project.version}</Bundle-Version>
+            <Export-Package>${bundle.namespace}.*;version="${project.version}"</Export-Package>
+            <Import-Package>*</Import-Package>
+            <Private-Package>org.opennms.netmgt.rrd.tcp.*,com.google.protobuf.*</Private-Package>
+            <!-- <Include-Resource>src/main/resources/pmatrixOSGiAppContext.xml</Include-Resource> -->
+            <!-- <Include-Resource> -->
+            <!-- {maven-resources} -->
+            <!-- </Include-Resource> -->
+            <_include>-osgi.bnd</_include>
+          </instructions>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.opennms.maven.plugins</groupId>
+        <artifactId>features-maven-plugin</artifactId>
+        <version>1.0.2-SNAPSHOT</version>
+        <configuration>
+          <bundles>
+            <bundle>mvn:org.opennms.features/vaadin-pmatrix/${project.version}</bundle>
+          </bundles>
+          <features>
+            <feature>opennms-core</feature>
+            <feature>vaadin</feature>
+          </features>
+        </configuration>
+      </plugin>
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jaxb2-maven-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>schemagen</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <verbose>true</verbose>
+              <includes>
+                <include>org/opennms/features/vaadin/pmatrix/model/*.java</include>
+
+              </includes>
+              <outputDirectory>${project.build.directory}/xsds</outputDirectory>
+              <!-- doesnt appear to work with package-info.java annotations -->
+              <!-- see http://stackoverflow.com/questions/5058236/schemagen-ant-task-ignores-package-info-java -->
+              <!-- <transformSchema> -->
+              <!-- <uri>http://xmlns.opennms.org/xsd/config/pmatrix</uri> -->
+              <!-- <toPrefix>pmatrix</toPrefix> -->
+              <!-- <toFile>pmatrixconfig</toFile> -->
+              <!-- </transformSchema> -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-jaxb.index</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/classes/org/opennms/features/vaadin/pmatrix/model/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/java/org/opennms/features/vaadin/pmatrix/model/</directory>
+                  <includes>
+                    <include>jaxb.index</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy2-jaxb.index</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/classes/org/opennms/features/vaadin/pmatrix/calculator/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/java/org/opennms/features/vaadin/pmatrix/calculator/</directory>
+                  <includes>
+                    <include>jaxb.index</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>copy-xsds</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/${project.name}-${project.version}/META-INF/schema</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/xsds</directory>
+                  <includes>
+                    <include>**/*.xsd</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.plugin.version}</version>
+        <configuration>
+          <excludes>
+            <!-- prevent tests running in this package. These are one off development tests -->
+            <exclude>**/org/opennms/features/vaadin/pmatrix/manual/*.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+
+
+  </build>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>org.ops4j.pax.vaadin</groupId>
+      <artifactId>service</artifactId>
+      <version>0.3.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin-server</artifactId>
+      <version>${vaadinVersion}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin-client-compiled</artifactId>
+      <version>${vaadinVersion}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- Needed when using the widgetset optimizer (custom ConnectorBundleLoaderFactory). -->
+    <!-- For widgetset compilation, vaadin-client-compiler is automatically added on the -->
+    <!-- compilation classpath by vaadin-maven-plugin so normally there is no need for an explicit dependency. -->
+    <!-- <dependency> -->
+    <!-- <groupId>com.vaadin</groupId> -->
+    <!-- <artifactId>vaadin-client-compiler</artifactId> -->
+    <!-- <version>${vaadinVersion}</version> -->
+    <!-- <scope>provided</scope> -->
+    <!-- </dependency> -->
+
+    <dependency>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin-client</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin-push</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin-themes</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <!-- <scope>provided</scope> -->
+    </dependency>
+
+    <dependency>
+      <groupId>ru.xpoft.vaadin</groupId>
+      <artifactId>spring-vaadin-integration</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>compile</scope> <!-- test ?? -->
+    </dependency>
+
+    <dependency>
+      <groupId>org.opennms</groupId>
+      <artifactId>opennms-rrd-tcp</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opennms.features</groupId>
+      <artifactId>vaadin-dashboard</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4jVersion}</version>
+      <scope>compile</scope>
+    </dependency>
+    <!-- <dependency> -->
+    <!-- <groupId>org.slf4j</groupId> -->
+    <!-- <artifactId>slf4j-simple</artifactId> -->
+    <!-- <version>${slf4jVersion}</version> -->
+    <!-- <scope>compile</scope> -->
+    <!-- </dependency> -->
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${log4j2Version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j2Version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j2Version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+  </dependencies>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>opennms-snapshots</id>
+      <name>OpenNMS Snapshot Maven Repository</name>
+      <url>http://maven.opennms.org/content/groups/opennms.org-snapshot</url>
+    </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>opennms-repo</id>
+      <name>OpenNMS Repository</name>
+      <url>http://maven.opennms.org/content/groups/opennms.org-release</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+</project>

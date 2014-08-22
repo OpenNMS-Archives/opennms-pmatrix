@@ -1,0 +1,64 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+          http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+
+
+  <!-- see http://codebrickie.com/blog/2012/11/11/integrating-vaadin-7-and-spring/ -->
+
+  <!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name> 
+    <param-value>/WEB-INF/applicationContext.xml</param-value>
+  </context-param>
+  
+  <!-- 60 second heartbeat -->
+  <context-param>
+    <param-name>heartbeatInterval</param-name>
+    <param-value>60</param-value> 
+  </context-param>
+  
+  <!-- 60 minutes timeout -->
+  <!--   <session-config>  -->
+  <!--     <session-timeout>60</session-timeout> -->
+  <!--   </session-config>  -->
+
+  <!-- Creates the Spring Container shared by all Servlets and Filters -->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  
+  <!-- To allow request and session-scoped beans -->
+  <listener>
+    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>VaadinServlet</servlet-name>
+    <servlet-class>ru.xpoft.vaadin.SpringVaadinServlet</servlet-class>
+    <init-param>
+      <param-name>beanName</param-name>
+      <!-- This is the name of your main Vaadin UI class. You should declare it as a prototype-scoped component (e.g. @Component @Scope("protoype")). -->
+      <param-value>pmatrixApplication</param-value> <!-- was MyVaadinUI -->
+    </init-param>
+    <init-param>
+      <!-- set false if you want to use vaadin debug app -->
+      <param-name>productionMode</param-name>
+      <param-value>true</param-value> 
+    </init-param>
+
+    <!-- If not using the default widget set -->
+    <init-param>
+      <param-name>widgetset</param-name>
+      <param-value>org.opennms.features.vaadin.pmatrix.ui.AppWidgetSet</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>VaadinServlet</servlet-name>
+    <url-pattern>/PmatrixUI/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>VaadinServlet</servlet-name>
+    <url-pattern>/VAADIN/*</url-pattern>
+  </servlet-mapping>
+</web-app>

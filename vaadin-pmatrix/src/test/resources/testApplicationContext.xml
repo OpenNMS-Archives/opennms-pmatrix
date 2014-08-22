@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:task="http://www.springframework.org/schema/task"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/task
+           http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+  <context:annotation-config />
+  <context:component-scan base-package="org.opennms.features.vaadin.pmatrix" />
+
+
+  <bean id="dataPointMapDao" class="org.opennms.features.vaadin.pmatrix.engine.DataPointMapDaoImpl">
+    <property name="pmatrixSpecificationList">
+      <ref bean="pmatrixSpecificationList" />
+    </property>
+  </bean>
+
+
+  <!-- this bean starts its own thread with @PostConstruct to listen for messages -->
+  <bean id="pmatrixPerfDataListener" class="org.opennms.features.vaadin.pmatrix.engine.PmatrixPerfDataListener">
+    <property name="port" value="8999" /> <!-- port number to listen on -->
+    <property name="dataPointMapDao">
+      <ref bean="dataPointMapDao" />
+    </property>
+  </bean>
+
+
+  <bean id="pmatrixDataSource" class="org.opennms.features.vaadin.pmatrix.engine.PmatrixDataSourceImpl" scope="prototype">
+    <property name="dataPointMapDao">
+      <ref bean="dataPointMapDao" />
+    </property>
+  </bean>
+  
+  <bean id="pmatrixDpdCalculatorRepository" class="org.opennms.features.vaadin.pmatrix.calculator.PmatrixDpdCalculatorRepository">
+<!--     <property name="archiveFileDirectoryLocation" value="${pmatrix.archive.directorylocation}" /> -->
+<!--     <property name="archiveFileName" value="${pmatrix.archive.fileName}" /> -->
+<!--     <property name="archiveFileMaxNumber" value="${pmatrix.archive.fileMaxNumber}" /> -->
+<!--     <property name="persistHistoricData" value="${pmatrix.archive.persistHistoricData}" /> -->
+  </bean>
+  
+
+  <!-- This prototype determines the type of calculator which is used to calculate values for each point -->
+  <bean id="pmatrixDpdCalculator" class="org.opennms.features.vaadin.pmatrix.calculator.PmatrixDpdCalculatorEmaImpl" scope="prototype" />
+
+
+
+  <!-- **************************************************** -->
+  <!-- The following are test specifications for the tables -->
+  <!-- **************************************************** -->
+  <bean id="pmatrixSpecificationList" class="org.opennms.features.vaadin.pmatrix.model.PmatrixSpecificationListImpl">
+    <!-- pmatrixSpecificationList -->
+    <constructor-arg index="0" type="java.util.List">
+      <list>
+        <ref bean="pmatrixSpecification" />
+        <ref bean="pmatrixSpecificationTwo" />
+      </list>
+    </constructor-arg>
+    <property name="refreshRate" value="10000" /> <!-- refresh display every 10 seconds -->
+  </bean>
+
+  <bean id="pmatrixSpecification" class="org.opennms.features.vaadin.pmatrix.model.PmatrixSpecificationImpl">
+
+    <property name="pmatrixName" value="default" />
+
+    <property name="pmatrixTitle" value="OpenNMS Pmatrix Table of very important values" />
+
+    <property name="columnNames">
+      <list>
+        <value>col a</value>
+        <value>col b</value>
+        <value>col c</value>
+        <value>col d</value>
+        <value>col c</value>
+        <value>col e</value>
+        <value>col f</value>
+        <value>col g</value>
+        <value>col h</value>
+        <value>col i</value>
+        <value>col j</value>
+        <value>col k</value>
+        <value>col l</value>
+        <value>col m</value>
+        <value>col n</value>
+      </list>
+    </property>
+    <property name="rowNames">
+      <list>
+        <value>row a</value>
+        <value>row b</value>
+        <value>row c</value>
+        <value>row d</value>
+        <value>row e</value>
+        <value>row f</value>
+        <value>row g</value>
+        <value>row h</value>
+        <value>row i</value>
+        <value>row j</value>
+        <value>row k</value>
+        <value>row l</value>
+        <value>row m</value>
+        <value>row n</value>
+      </list>
+    </property>
+    <property name="datapointDefinitions">
+      <list>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row a" />
+          <property name="colName" value="col b" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/204.79.197.200/icmp.jrb" />
+          <!-- note must use &#38 instead of ampersand -->
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[3].responseTime[204.79.197.200]&#38;reports=icmp" />
+          <property name="latestDataValue" value="1000.1" />   <!-- this is set as a test -->
+          <property name="latestDataValueRange" value="5" />    <!-- this is set as a test -->
+          <property name="mouseOverText" value="Value Statistics:&lt;BR&gt; mean: 500 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +500.1" /> <!-- this is set as a test -->
+          <property name="latestTimestamp" value=""></property>
+        </bean>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row a" />
+          <property name="colName" value="col c" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.194.41.177/icmp.jrb" />
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[173.194.41.177]&#38;reports=icmp" />
+          <property name="latestDataValue" value="600" />   <!-- this is set as a test -->
+          <property name="latestDataValueRange" value="2" />    <!-- this is set as a test -->
+          <property name="mouseOverText" value="Value Statistics:&lt;BR&gt; mean: 500 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +100" /> <!-- this is set as a test -->
+          <property name="latestTimestamp" value=""></property>
+        </bean>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row b" />
+          <property name="colName" value="col a" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.252.110.27/icmp.jrb" />
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[1].responseTime[173.252.110.27]&#38;reports=icmp" />
+        </bean>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row b" />
+          <property name="colName" value="col c" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/8.8.4.4/icmp.jrb" />
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[8.8.4.4]&#38;reports=icmp" />
+        </bean>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row c" />
+          <property name="colName" value="col a" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/204.79.197.200/http.jrb" />
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[3].responseTime[204.79.197.200]&#38;reports=http" />
+        </bean>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row c" />
+          <property name="colName" value="col b" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/192.168.153.131/http.jrb" />
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[4].responseTime[192.168.153.131]&#38;reports=http" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="pmatrixSpecificationTwo" class="org.opennms.features.vaadin.pmatrix.model.PmatrixSpecificationImpl">
+
+    <property name="pmatrixName" value="pmatrix2" />
+
+    <property name="pmatrixTitle" value="Pmatrix Specification Two" />
+
+    <property name="columnNames">
+      <list>
+        <value>col 1</value>
+        <value>col 2</value>
+        <value>col 3</value>
+      </list>
+    </property>
+    <property name="rowNames">
+      <list>
+        <value>row 1</value>
+        <value>row 2</value>
+        <value>row 3</value>
+      </list>
+    </property>
+    <property name="datapointDefinitions">
+      <list>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row 1" />
+          <property name="colName" value="col 1" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.194.41.177/http.jrb" />
+          <!-- note must use &#38 instead of ampersand -->
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[173.194.41.177]&#38;reports=http" />
+          <property name="latestDataValue" value="1000.1" />   <!-- this is set as a test -->
+          <property name="latestDataValueRange" value="5" />    <!-- this is set as a test -->
+          <property name="mouseOverText" value="Value Statistics:&lt;BR&gt; mean: 500 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +500.1" /> <!-- this is set as a test -->
+          <property name="latestTimestamp" value=""></property>
+        </bean>
+        <bean class="org.opennms.features.vaadin.pmatrix.model.DataPointDefinitionImpl">
+          <property name="rowName" value="row 1" />
+          <property name="colName" value="col 2" />
+          <property name="filePath" value="/home/isawesome/devel/opennms-test/dist/share/rrd/response/173.194.41.177/icmp.jrb" />
+          <property name="graphURL" value="http://localhost:8980/opennms/graph/results.htm?resourceId=node[2].responseTime[173.194.41.177]&#38;reports=icmp" />
+          <property name="latestDataValue" value="600" />   <!-- this is set as a test -->
+          <property name="latestDataValueRange" value="5" />    <!-- this is set as a test -->
+          <property name="mouseOverText" value="Value Statistics:&lt;BR&gt; mean: 500 &lt;BR&gt;average variance: +/- 200 &lt;BR&gt;actual variance: +100" /> <!-- this is set as a test -->
+          <property name="latestTimestamp" value=""></property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+</beans>

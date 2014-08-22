@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:task="http://www.springframework.org/schema/task"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/task
+           http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+
+  <!-- exports managed jmx beans -->
+  <context:mbean-export />
+
+  <context:annotation-config />
+
+  <!-- NOTE this does not work in OSGi. You must declare components explicitly -->
+  <!-- see http://stackoverflow.com/questions/16795205/spring-component-scan-broken-in-osgi-container -->
+  <context:component-scan base-package="org.opennms.features.vaadin.pmatrix" />
+
+  <!-- explicitly declared because cannot be discovered by @Component annotation in osgi -->
+  <bean id="pmatrixApplication" class="org.opennms.features.vaadin.pmatrix.ui.PmatrixApplication" scope="prototype">
+    <property name="uiComponentFactory">
+      <ref bean="uiComponentFactory" />
+    </property>
+  </bean>
+
+  <!-- explicitly declared because cannot be discovered by @Component annotation in osgi -->
+  <bean id="uiComponentFactory" class="org.opennms.features.vaadin.pmatrix.engine.UiComponentFactoryImpl" scope="prototype">
+    <property name="pmatrixSpecificationList">
+      <ref bean="pmatrixSpecificationListJaxb" /> <!-- pmatrixSpecificationListJaxb loads from jaxb, pmatrixSpecificationList loads locally -->
+    </property>
+  </bean>
+
+  <!-- Load properties for pmatrix application. -->
+  <!-- Explanation see http://springtips.blogspot.co.uk/2008/09/configuring-applications-with-spring.html -->
+  <!-- Enables basic property resolution through simple system properties (in fallback mode) -->
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+  </bean>
+  <!-- load property resources from default locations or servlet context -->
+  <bean class="org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer">
+    <!-- directly defined system properties will override ServletContext settings, -->
+    <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+    <!-- ServletContext attributes with same name dynamically override init parameters defined in web.xm -->
+    <property name="searchContextAttributes" value="true" />
+    <property name="contextOverride" value="true" /> <!-- ServletContext init parameters (and optionally also ServletContext attributes) override local properties -->
+    <property name="ignoreResourceNotFound" value="true" />
+    <property name="locations">
+      <list>
+        <!-- loads default properties in file defaultpmatrix.properties. This is used if no other properties set. -->
+        <value>classpath:defaultpmatrix.properties</value>
+        <!-- loads properties in file pmatrixlocal.properties (overrides default for testing) -->
+        <value>classpath:pmatrixlocal.properties</value>
+        <!-- loads properties in file pmatrix.properties (this will be found in opennms /etc directory as on classpath) -->
+        <value>classpath:pmatrix.properties</value>
+        <!-- loads properties file located by system/environment variable called “pmatrix.properties.location”; -->
+        <!-- (e.g. -Dpmatrix.properties.location=c://pmatrix.properties). -->
+        <value>${pmatrix.properties.location}</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="dataPointMapDao" class="org.opennms.features.vaadin.pmatrix.engine.DataPointMapDaoImpl">
+    <property name="pmatrixSpecificationList">
+      <ref bean="pmatrixSpecificationListJaxb" /> <!-- pmatrixSpecificationListJaxb loads from jaxb, pmatrixSpecificationList loads locally -->
+    </property>
+    <property name="pmatrixDpdCalculatorRepository">
+      <ref bean="pmatrixDpdCalculatorRepository" /> <!-- added explicitly because autowired doesn't work -->
+    </property>
+  </bean>
+
+  <!-- this bean starts its own thread with @PostConstruct to listen for messages -->
+  <!-- NOTE - @PostConstruct problems in OSGi so using init-method / destroy-method in application context -->
+  <!-- alternative <bean id="pmatrixPerfDataListener" class="org.opennms.features.vaadin.pmatrix.engine.PmatrixPerfDataListener"> -->
+  <bean id="pmatrixPerfDataListener" class="org.opennms.features.vaadin.pmatrix.engine.PmatrixPerfDataListenerBuffered" init-method="startThread" destroy-method="stopThread" >
+    <property name="port" value="${pmatrix.config.performance.listener.port}" /> <!-- port number to listen on (default 8999) -->
+    <property name="dataPointMapDao">
+      <ref bean="dataPointMapDao" />
+    </property>
+  </bean>
+
+  <!-- REPLACING SCHEDULED TASKS NAMESPACE WITH DIRECT BEAN SCHEDULE CONFIGURATION -->
+  <!-- REMOVED BECAUSE DOESNT WORK IN OSGI. FREPLACED WITH DIRECT BEAN CONFIGURATION -->
+  <!-- <task:scheduled-tasks scheduler="pmatrixScheduler"> -->
+  <!-- scheduler to schedule how often historical data files are persisted -->
+  <!-- <task:scheduled ref="pmatrixPerfDataListener" method="persistDataPointMapDao" cron="${pmatrix.archive.persistanceCron}" /> -->
+  <!-- scheduler to schedule a heartbeat for checking if data has not been updated. Set to run every 1 minute -->
+  <!-- <task:scheduled ref="dataPointMapDao" method="notifyChange" fixed-delay="60000" /> -->
+  <!-- scheduler to schedule an update to all the tables if a change has been notified (set to 20 seconds) -->
+  <!-- <task:scheduled ref="dataPointMapDao" method="runUpdate" fixed-delay="20000" /> -->
+  <!-- </task:scheduled-tasks> -->
+
+  <!-- <task:scheduler id="pmatrixScheduler" pool-size="3" /> -->
+
+  <!-- scheduler to schedule how often historical data files are persisted using cron -->
+  <bean id="persistDataCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="persistDataPointMapDaoJob" />
+    <property name="cronExpression" value="${pmatrix.archive.persistanceCron}" />
+  </bean>
+
+  <bean id="persistDataPointMapDaoJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="pmatrixPerfDataListener" />
+    <property name="targetMethod" value="persistDataPointMapDao" />
+    <property name="concurrent" value="false" />
+  </bean>
+
+  <!-- scheduler to schedule a heartbeat for checking if data has not been updated. Set to run every 1 minute -->
+  <bean id="notifyChangeTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <property name="jobDetail" ref="notifyChangeJob" />
+    <!-- 60 seconds -->
+    <property name="startDelay" value="60000" />
+    <!-- repeat every 60 seconds -->
+    <property name="repeatInterval" value="60000" />
+  </bean>
+
+  <bean id="notifyChangeJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="dataPointMapDao" />
+    <property name="targetMethod" value="notifyChange" />
+    <property name="concurrent" value="false" />
+  </bean>
+
+  <!-- scheduler to schedule an update to all the tables if a change has been notified (set to 20 seconds) -->
+  <bean id="runUpdateJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <property name="jobDetail" ref="runUpdateJob" />
+    <!-- 60 seconds -->
+    <property name="startDelay" value="20000" />
+    <!-- repeat every 60 seconds -->
+    <property name="repeatInterval" value="20000" />
+  </bean>
+
+  <bean id="runUpdateJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="dataPointMapDao" />
+    <property name="targetMethod" value="runUpdate" />
+    <property name="concurrent" value="false" />
+  </bean>
+
+  <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <property name="triggers">
+      <list>
+        <ref bean="notifyChangeTrigger" />
+        <ref bean="runUpdateJobTrigger" />
+        <ref bean="persistDataCronTrigger" />
+      </list>
+    </property>
+  </bean>
+
+  <!-- END OF DIRECT BEAN SCHEDULE CONFIGURATION -->
+
+  <bean id="pmatrixDataSource" class="org.opennms.features.vaadin.pmatrix.engine.PmatrixDataSourceImpl" scope="prototype">
+    <property name="dataPointMapDao">
+      <ref bean="dataPointMapDao" />
+    </property>
+  </bean>
+
+  <bean id="pmatrixDpdCalculatorRepository" class="org.opennms.features.vaadin.pmatrix.calculator.PmatrixDpdCalculatorRepository">
+    <property name="archiveFileDirectoryLocation" value="${pmatrix.archive.directorylocation}" />
+    <property name="archiveFileName" value="${pmatrix.archive.fileName}" />
+    <property name="archiveFileMaxNumber" value="${pmatrix.archive.fileMaxNumber}" />
+    <property name="persistHistoricData" value="${pmatrix.archive.persistHistoricData}" />
+  </bean>
+
+  <!-- <bean id="properResourceLoader" class="org.springframework.core.io.DefaultResourceLoader" /> -->
+
+  <!-- This loads the pmatrixSpecificationList from jaxb configuration file -->
+  <!-- the factory bean, which loads configurations from a file -->
+  <!-- NOTE - @PostConstruct problems in OSGi so using init-method="loadConfiguration" in application context -->
+  <bean id="pmatrixConfigurationFactory" class="org.opennms.features.vaadin.pmatrix.engine.PmatrixConfigurationFactory" init-method="loadConfiguration">
+
+    <!-- inject any dependencies required by this locator bean -->
+    <property name="configFileLocation" value="${pmatrix.config.filelocation}" />
+
+    <!-- forcing to use specified resource loader if not injected by spring -->
+    <!-- <property name="resourceLoader" ref="properResourceLoader" /> -->
+  </bean>
+
+  <!-- matrixSpecificationList which is loaded by the factory -->
+  <bean id="pmatrixSpecificationListJaxb" factory-bean="pmatrixConfigurationFactory" factory-method="returnPmatrixSpecificationList" />
+
+  <!-- This prototype determines the type of calculator which is used to calculate values for each point (used by DataPointMapDaoImpl) -->
+  <bean id="pmatrixDpdCalculator" factory-bean="pmatrixConfigurationFactory" factory-method="createPmatrixDpdCalculator" scope="prototype" />
+
+
+</beans>

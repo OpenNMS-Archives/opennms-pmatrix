@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.opennms</groupId>
+  <artifactId>opennms-pmatrix</artifactId>
+  <version>1.2.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>opennms-pmatrix</name>
+  <url>http://opennms.org</url>
+  <description>Real time performance statistics matrix display for OpenNMS</description>
+
+  <properties>
+    <updatePolicy>daily</updatePolicy>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- this is the version of OpenNMS which this project has been built against -->
+    <opennmsVersion>1.13.3-SNAPSHOT</opennmsVersion>
+    <!-- <opennmsVersion>1.12.4</opennmsVersion> -->
+
+    <vaadinVersion>7.1.7</vaadinVersion>
+    <vaadin.plugin.version>${vaadinVersion}</vaadin.plugin.version>
+    <jettyVersion>7.6.12.v20130726</jettyVersion>
+    <springVersion>3.2.3.RELEASE</springVersion>
+    <junitVersion>3.8.1</junitVersion>
+    <googleProtobufVersion>2.2.0</googleProtobufVersion>
+    <maven.surefire.plugin.version>2.15</maven.surefire.plugin.version>
+    <slf4jVersion>1.7.2</slf4jVersion>
+    <log4j2Version>2.0-beta9</log4j2Version>
+  </properties>
+
+  <modules>
+    <module>opennms-pmatrix-tests</module>
+    <module>vaadin-pmatrix</module>
+    <module>pmatrix-theme</module>
+    <module>vaadin-pmatrix-war</module>
+  </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.1</version>
+          <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+            <encoding>UTF-8</encoding>
+            <optimize>true</optimize>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>2.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.mortbay.jetty</groupId>
+          <artifactId>jetty-maven-plugin</artifactId>
+          <version>${jettyVersion}</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>2.4.1</version>
+        </plugin>
+        <plugin>
+          <groupId>com.vaadin</groupId>
+          <artifactId>vaadin-maven-plugin</artifactId>
+          <version>${vaadin.plugin.version}</version>
+        </plugin>
+
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin-maven-plugin</artifactId>
+                    <versionRange>[7.1.7,)</versionRange>
+                    <goals>
+                      <goal>resources</goal>
+                      <goal>update-widgetset</goal>
+                      <goal>compile</goal>
+                      <goal>update-theme</goal>
+                      <goal>compile-theme</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.plugin.version}</version>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junitVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opennms</groupId>
+        <artifactId>opennms-rrd-tcp</artifactId>
+        <version>${opennmsVersion}</version>
+        <exclusions>
+          <!-- exclusions to make logging config work with OpenNMS 1.12.4 and make war smaller -->
+          <exclusion>
+            <groupId>org.opennms.core</groupId>
+            <artifactId>org.opennms.core.lib</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.opennms.dependencies</groupId>
+            <artifactId>spring-dependencies</artifactId>
+          </exclusion>
+          <!-- Note the opennms Jaxb dependencies are needed to run in Eclipse JettyRun plugin -->
+          <!-- <exclusion> -->
+          <!-- <groupId>org.opennms.dependencies</groupId> -->
+          <!-- <artifactId>jaxb-dependencies</artifactId> -->
+          <!-- </exclusion> -->
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${googleProtobufVersion}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.opennms.features</groupId>
+        <artifactId>vaadin-dashboard</artifactId>
+        <scope>provided</scope>
+        <version>${opennmsVersion}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.vaadin</groupId>
+        <artifactId>vaadin-server</artifactId>
+        <version>${vaadinVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.vaadin</groupId>
+        <artifactId>vaadin-client-compiled</artifactId>
+        <version>${vaadinVersion}</version>
+      </dependency>
+      <!-- Needed when using the widgetset optimizer (custom ConnectorBundleLoaderFactory). For widgetset compilation, vaadin-client-compiler is automatically added 
+        on the compilation classpath by vaadin-maven-plugin so normally there is no need for an explicit dependency. -->
+      <!-- <dependency> <groupId>com.vaadin</groupId> <artifactId>vaadin-client-compiler</artifactId> <version>${vaadinVersion}</version> <scope>provided</scope> 
+        </dependency> -->
+      <dependency>
+        <groupId>com.vaadin</groupId>
+        <artifactId>vaadin-client</artifactId>
+        <version>${vaadinVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.vaadin</groupId>
+        <artifactId>vaadin-push</artifactId>
+        <version>${vaadinVersion}</version>
+        <exclusions>
+          <!-- may interfered with logging -->
+          <!-- <exclusion> -->
+          <!-- <groupId>com.vaadin.external.slf4j</groupId> -->
+          <!-- <artifactId>vaadin-slf4j-jdk14</artifactId> -->
+          <!-- </exclusion> -->
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.vaadin</groupId>
+        <artifactId>vaadin-themes</artifactId>
+        <version>${vaadinVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ru.xpoft.vaadin</groupId>
+        <artifactId>spring-vaadin-integration</artifactId>
+        <version>2.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>${springVersion}</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>${updatePolicy}</updatePolicy>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>${updatePolicy}</updatePolicy>
+      </releases>
+      <id>opennms-repo</id>
+      <name>OpenNMS Repository</name>
+      <url>http://maven.opennms.org/content/groups/opennms.org-release</url>
+    </repository>
+
+    <repository>
+      <id>vaadin-addons</id>
+      <url>http://maven.vaadin.com/vaadin-addons</url>
+    </repository>
+    <repository>
+      <id>vaadin-snapshots</id>
+      <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>vaadin-snapshots</id>
+      <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <profiles>
+    <profile>
+      <id>compile-widgetset</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+    </profile>
+  </profiles>
+</project>
