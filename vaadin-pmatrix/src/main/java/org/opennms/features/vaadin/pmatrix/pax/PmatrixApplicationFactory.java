@@ -27,7 +27,7 @@
  *******************************************************************************/
 package org.opennms.features.vaadin.pmatrix.pax;
 
-import org.ops4j.pax.vaadin.AbstractApplicationFactory;
+import org.opennms.vaadin.extender.AbstractApplicationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
