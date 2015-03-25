@@ -60,7 +60,7 @@ public class PmatrixApplicationFactory extends AbstractApplicationFactory {
 
 
     /* (non-Javadoc)
-     * @see org.ops4j.pax.vaadin.AbstractApplicationFactory#getUI()
+     * @see org.opennms.vaadin.extender.AbstractApplicationFactory#getUI()
      */
     @Override
     public UI createUI() {
@@ -74,7 +74,7 @@ public class PmatrixApplicationFactory extends AbstractApplicationFactory {
     }
 
     /* (non-Javadoc)
-     * @see org.ops4j.pax.vaadin.AbstractApplicationFactory#getUIClass()
+     * @see org.opennms.vaadin.extender.AbstractApplicationFactory#getUIClass()
      */
     @Override
     public Class<? extends UI> getUIClass() {
