@@ -48,13 +48,15 @@ import org.opennms.features.vaadin.pmatrix.model.PmatrixSpecification;
 import org.opennms.features.vaadin.pmatrix.model.PmatrixSpecificationList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 @ManagedResource
-public class DataPointMapDaoImpl implements DataPointMapDao {
+public class DataPointMapDaoImpl implements DataPointMapDao, ApplicationContextAware {
 	private static final Logger LOG = LoggerFactory.getLogger(DataPointMapDaoImpl.class);
 
 	/**
@@ -389,6 +391,12 @@ public class DataPointMapDaoImpl implements DataPointMapDao {
 			PmatrixDpdCalculatorRepository pmatrixDpdCalculatorRepository) {
 		this.pmatrixDpdCalculatorRepository = pmatrixDpdCalculatorRepository;
 	}
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
 
 }

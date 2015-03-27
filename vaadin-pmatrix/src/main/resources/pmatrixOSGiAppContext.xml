@@ -61,7 +61,10 @@
     </property>
   </bean>
 
+<!--
   <bean id="dataPointMapDao" class="org.opennms.features.vaadin.pmatrix.engine.DataPointMapDaoImpl">
+-->
+  <bean id="dataPointMapDao" class="org.opennms.features.vaadin.pmatrix.engine.DataPointMapDaoImpl" init-method="addPmatrixSpecifications">
     <property name="pmatrixSpecificationList">
       <ref bean="pmatrixSpecificationListJaxb" /> <!-- pmatrixSpecificationListJaxb loads from jaxb, pmatrixSpecificationList loads locally -->
     </property>

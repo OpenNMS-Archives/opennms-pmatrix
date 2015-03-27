@@ -7,7 +7,7 @@
 }
 
 .v-vaadin-version:after {
-	content: "7.1.7";
+	content: "7.2.7";
 }
 
 .v-generated-body {
@@ -15,6 +15,10 @@
 	height: 100%;
 	border: 0;
 	margin: 0;
+	overflow: hidden;
+}
+
+.v-modal-window-open {
 	overflow: hidden;
 }
 
@@ -246,15 +250,15 @@
 }
 
 .v-debugwindow-row.FINE {
-	color: #777;
+	color: #737373;
 }
 
 .v-debugwindow-row.FINER {
-	color: #888;
+	color: gray;
 }
 
 .v-debugwindow-row.FINEST {
-	color: #888;
+	color: #8c8c8c;
 }
 
 .v-debugwindow-row > span.caption {
@@ -265,6 +269,14 @@
 
 .v-debugwindow-row > span.value {
 	width: 100%;
+}
+
+.v-debugwindow-selector > span.value {
+	width: 100%;
+}
+
+.v-debugwindow-selector :hover {
+	background: rgba(255, 32, 32, 0.5);
 }
 
 .v-debugwindow-log {
@@ -306,6 +318,23 @@
 
 .v-debugwindow-network .v-debugwindow-row > span {
 	display: inline;
+}
+
+@font-face {
+	font-family: FontAwesome;
+	src: url(../base/fonts/fontawesome-webfont.eot);
+	src: url(../base/fonts/fontawesome-webfont.eot?#iefix) format("embedded-opentype"), url(../base/fonts/fontawesome-webfont.woff) format("woff"), url(../base/fonts/fontawesome-webfont.ttf) format("truetype"), url(../base/fonts/fontawesome-webfont.svg) format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+
+.FontAwesome {
+	font-family: FontAwesome;
+	font-style: normal;
+	font-weight: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	display: inline-block;
 }
 
 /** sprite: verticals; sprite-image: url(common/img/vertical-sprites.png); sprite-layout: vertical */
@@ -388,6 +417,14 @@
 .pmatrixtheme .v-accordion-item-content {
 	position: absolute;
 	width: 100%;
+}
+
+.pmatrixtheme .v-browserframe {
+	font-size: 0;
+}
+
+.pmatrixtheme .v-browserframe > span {
+	font-size: 12px;
 }
 
 .pmatrixtheme .v-button {
@@ -1231,6 +1268,11 @@ body .pmatrixtheme.v-app .v-app-loading {
 	margin: 0;
 }
 
+.pmatrixtheme .v-contextmenu .gwt-MenuBar {
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
 .pmatrixtheme .v-contextmenu .gwt-MenuItem div {
 	cursor: pointer;
 	vertical-align: middle;
@@ -1309,6 +1351,10 @@ body .pmatrixtheme.v-app .v-app-loading {
 	overflow: auto;
 	font-size: 0;
 	line-height: normal;
+}
+
+.v-ff .pmatrixtheme .v-scrollable {
+	font-size: 12px;
 }
 
 .v-ios.v-webkit .pmatrixtheme .v-scrollable {
@@ -1546,10 +1592,6 @@ body .pmatrixtheme.v-app .v-app-loading {
 	padding-right: 12px;
 }
 
-.pmatrixtheme .v-customcomponent {
-	overflow: hidden;
-}
-
 .pmatrixtheme .v-customlayout {
 	overflow: hidden;
 }
@@ -1621,7 +1663,7 @@ body .pmatrixtheme.v-app .v-app-loading {
 	border: 1px solid #ddd;
 }
 
-.pmatrixtheme .v-disabled .v-datefield-calendarpanel-day, .pmatrixtheme .v-disabled .v-datefield-calendarpanel-day-today {
+.pmatrixtheme .v-disabled .v-datefield-calendarpanel-day, .pmatrixtheme .v-disabled .v-datefield-calendarpanel-day-today, .pmatrixtheme .v-disabled.v-datefield-popupcalendar .v-datefield-button {
 	cursor: default;
 }
 
@@ -1733,7 +1775,7 @@ body .pmatrixtheme.v-app .v-app-loading {
 	border: 1px solid #ddd;
 }
 
-.pmatrixtheme .v-disabled .v-inline-datefield-calendarpanel-day, .pmatrixtheme .v-disabled .v-inline-datefield-calendarpanel-day-today {
+.pmatrixtheme .v-disabled .v-inline-datefield-calendarpanel-day, .pmatrixtheme .v-disabled .v-inline-datefield-calendarpanel-day-today, .pmatrixtheme .v-disabled.v-inline-datefield-popupcalendar .v-inline-datefield-button {
 	cursor: default;
 }
 
@@ -1784,6 +1826,8 @@ body .pmatrixtheme.v-app .v-app-loading {
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 	position: relative;
+	-ms-touch-action: none;
+	touch-action: none;
 }
 
 .pmatrixtheme [draggable=true] {
@@ -2645,6 +2689,8 @@ body .pmatrixtheme.v-app .v-app-loading {
 	height: 12px;
 	margin-top: -5px;
 	font-size: 0;
+	-ms-touch-action: none;
+	touch-action: none;
 }
 
 .pmatrixtheme .v-slider-vertical {
@@ -2700,6 +2746,8 @@ body .pmatrixtheme.v-app .v-app-loading {
 	background: #ddd;
 	cursor: e-resize;
 	cursor: col-resize;
+	-ms-touch-action: none;
+	touch-action: none;
 }
 
 .pmatrixtheme .v-disabled .v-splitpanel-hsplitter div {
@@ -2715,6 +2763,8 @@ body .pmatrixtheme.v-app .v-app-loading {
 	background: #ddd;
 	cursor: s-resize;
 	cursor: row-resize;
+	-ms-touch-action: none;
+	touch-action: none;
 }
 
 .pmatrixtheme .v-disabled .v-splitpanel-vsplitter div {
@@ -3125,6 +3175,14 @@ body .pmatrixtheme.v-app .v-app-loading {
 	cursor: default;
 }
 
+.pmatrixtheme .v-tabsheet-tabitem-focus .v-captiontext {
+	text-decoration: underline;
+}
+
+.pmatrixtheme .v-tabsheet-tabitem-selected.v-tabsheet-tabitem-focus .v-captiontext {
+	text-decoration: inherit;
+}
+
 .pmatrixtheme .v-tabsheet-content {
 	border: 1px solid #aaa;
 	border-top: none;
@@ -3412,7 +3470,6 @@ body .pmatrixtheme.v-app .v-app-loading {
 }
 
 .pmatrixtheme .v-treetable .v-table-row .v-table-cell-content, .pmatrixtheme .v-treetable .v-table-row-odd .v-table-cell-content {
-	position: relative;
 	z-index: 10;
 }
 
@@ -5064,7 +5121,7 @@ body .pmatrixtheme.v-app .v-app-loading {
 	width: 6px;
 }
 
-.pmatrixtheme .v-verticallayout-blue, .pmatrixtheme .v-horizontallayout-blue, .pmatrixtheme .v-orderedlayout-blue, .pmatrixtheme .v-gridlayout-blue, .pmatrixtheme .v-csslayout-blue, .pmatrixtheme .v-formlayout-blue, .pmatrixtheme .v-splitpanel-vertical-blue, .pmatrixtheme .v-splitpanel-horizontal-blue {
+.pmatrixtheme .v-verticallayout-blue, .pmatrixtheme .v-horizontallayout-blue, .pmatrixtheme .v-orderedlayout-blue, .pmatrixtheme .v-gridlayout-blue, .pmatrixtheme .v-csslayout-blue, .pmatrixtheme .v-formlayout-blue, .pmatrixtheme .v-absolutelayout-blue, .pmatrixtheme .v-splitpanel-vertical-blue, .pmatrixtheme .v-splitpanel-horizontal-blue {
 	background-color: #bcd3de;
 }
 
@@ -5072,7 +5129,7 @@ body .pmatrixtheme.v-app .v-app-loading {
 	background-color: #bcd3de;
 }
 
-.pmatrixtheme .v-verticallayout-white, .pmatrixtheme .v-horizontallayout-white, .pmatrixtheme .v-orderedlayout-white, .pmatrixtheme .v-gridlayout-white, .pmatrixtheme .v-csslayout-white, .pmatrixtheme .v-formlayout-white, .pmatrixtheme .v-splitpanel-vertical-white, .pmatrixtheme .v-splitpanel-horizontal-white {
+.pmatrixtheme .v-verticallayout-white, .pmatrixtheme .v-horizontallayout-white, .pmatrixtheme .v-orderedlayout-white, .pmatrixtheme .v-gridlayout-white, .pmatrixtheme .v-csslayout-white, .pmatrixtheme .v-formlayout-white, .pmatrixtheme .v-absolutelayout-white, .pmatrixtheme .v-splitpanel-vertical-white, .pmatrixtheme .v-splitpanel-horizontal-white {
 	background-color: #fff;
 	color: #222;
 }
@@ -5082,7 +5139,7 @@ body .pmatrixtheme.v-app .v-app-loading {
 	color: #222;
 }
 
-.pmatrixtheme .v-verticallayout-black, .pmatrixtheme .v-horizontallayout-black, .pmatrixtheme .v-orderedlayout-black, .pmatrixtheme .v-gridlayout-black, .pmatrixtheme .v-csslayout-black, .pmatrixtheme .v-formlayout-black, .pmatrixtheme .v-splitpanel-vertical-black, .pmatrixtheme .v-splitpanel-horizontal-black {
+.pmatrixtheme .v-verticallayout-black, .pmatrixtheme .v-horizontallayout-black, .pmatrixtheme .v-orderedlayout-black, .pmatrixtheme .v-gridlayout-black, .pmatrixtheme .v-csslayout-black, .pmatrixtheme .v-formlayout-black, .pmatrixtheme .v-absolutelayout-black, .pmatrixtheme .v-splitpanel-vertical-black, .pmatrixtheme .v-splitpanel-horizontal-black {
 	background: #1e2022 url(../reindeer/layouts/img/black-bg.png) repeat-x;
 }
 
@@ -6198,6 +6255,10 @@ body .pmatrixtheme.v-app .v-app-loading {
 
 .v-sa .pmatrixtheme .v-tabsheet-tabs .v-captiontext {
 	display: inline-block;
+}
+
+.v-sa .pmatrixtheme .v-tabsheet-tabs .v-icon {
+	vertical-align: top;
 }
 
 .pmatrixtheme .v-tabsheet-tabs .v-icon {
